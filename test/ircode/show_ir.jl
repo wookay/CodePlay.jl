@@ -235,7 +235,8 @@ end
 
 
 import InteractiveUtils: @code_typed
-(src,) = @code_typed 2pi
+(src,) = @code_typed first([3])
+#(src,) = @code_typed 2pi
 code = Core.Compiler.inflate_ir(src)::IRCode
 show_ir2(stdout, code, verbose_linetable=false)
 println()
