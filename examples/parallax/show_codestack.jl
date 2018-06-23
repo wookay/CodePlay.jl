@@ -24,7 +24,6 @@ end
 
 struct CodeData
 end
-global changeset = Changeset(CodeData, (data="2pi",))
 
 function layout(body)
     """
@@ -104,7 +103,7 @@ function show_codestack(data)
 end
 
 function index(c::IRController, show_banner=true)
-    global changeset
+    changeset = Changeset(CodeData, (data="2pi",)) # to be global
     result = change(changeset, c.params)
     if !isempty(result.changes)
         changeset.changes = merge(changeset.changes, result.changes)
