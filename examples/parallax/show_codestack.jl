@@ -1,10 +1,18 @@
 # julia -i show_codestack.jl
 
+# Demo for Poptart.jl
+#   https://github.com/wookay/Poptart.jl
+
+# Visit to build on Heroku
+#   https://github.com/wookay/heroku-codetyped
+
+
 import InteractiveUtils: @code_typed
 import Core.Compiler: IRCode
 import Poptart: groupwise_codestack
 import AbstractTrees: print_tree
 using Millboard # table
+using DataLogger
 
 using Bukdu # ApplicationController Changeset plug get post
 using Bukdu.HTML5.Form # change form_for text_input
@@ -95,13 +103,13 @@ function show_codestack(data)
     String(take!(io))
 end
 
-function index(c::IRController)
+function index(c::IRController, show_banner=true)
     global changeset
     result = change(changeset, c.params)
     if !isempty(result.changes)
         changeset.changes = merge(changeset.changes, result.changes)
     end
-    @tags div label span pre
+    @tags div label span pre a
     form1 = form_for(changeset, (IRController, post_result), method=post, multipart=true) do f
         div(
             span[:class => "prompt"]("julia> "),
@@ -111,20 +119,27 @@ function index(c::IRController)
             submit("🏂", class="form_submit"),
         )
     end
-    body = div(form1, pre(show_codestack(changeset.changes.data)))
+    source_link = div(a[:href => "https://github.com/wookay/Poptart.jl/blob/master/examples/parallax/show_codestack.jl"]("source code"))
+    body = div(show_banner ? pre(DataLogger.read_stdout(Base.banner)) : "", form1, pre(show_codestack(changeset.changes.data)), source_link)
     render(HTML, layout(body))
 end
 
-post_result(c::IRController) = index(c)
+index(c::IRController) = index(c, true) 
+post_result(c::IRController) = index(c, false)
 
 plug(Plug.Logger, access_log=(path=normpath(@__DIR__, "access.log"),), formatter=Plug.LoggerFormatter.datetime_message)
 
 routes(:front) do
     get("/", IRController, index)
-    post("/show_ir", IRController, post_result)
+    post("/show_codestack", IRController, post_result)
 end
 
-const ServerHost = "localhost"
-const ServerPort = 8080
-Bukdu.start(ServerPort, host=ServerHost)
+if haskey(ENV, "ON_HEROKU")
+    import Sockets: IPv4
+    Bukdu.start(parse(Int, ENV["PORT"]); host=IPv4(0,0,0,0))
+else
+    const ServerHost = "localhost"
+    const ServerPort = 8080
+    Bukdu.start(ServerPort, host=ServerHost)
+end
 iszero(Base.JLOptions().isinteractive) && wait()
