@@ -35,10 +35,9 @@ code = Core.Compiler.inflate_ir(src, Core.svec())::IRCode
 codestack = groupwise_codestack(code)
 
 Millboard.display_style[:prepend_newline] = true
-output = DataLogger.read_stdout() do
+DataLogger.read_stdout() do
     println(table(codestack.A))
-end
-@test output == """
+end == """
 
 |    | 1 |  2 | 3 |  4 |
 |----|---|----|---|----|
@@ -74,12 +73,12 @@ end ==  """
 │     │  └─ (value = 12, range = 6:6)
 │     ├─ (value = 5, range = 7:7)
 │     └─ (value = 6, range = 8:13)
-│        ├─ (value = 13, range = 1:1)
-│        ├─ (value = 14, range = 2:2)
-│        ├─ (value = 15, range = 3:3)
-│        ├─ (value = 16, range = 4:4)
-│        ├─ (value = 17, range = 5:5)
-│        └─ (value = 18, range = 6:6)
+│        ├─ (value = 13, range = 8:8)
+│        ├─ (value = 14, range = 9:9)
+│        ├─ (value = 15, range = 10:10)
+│        ├─ (value = 16, range = 11:11)
+│        ├─ (value = 17, range = 12:12)
+│        └─ (value = 18, range = 13:13)
 └─ (value = 2, range = 14:15)
-   └─ (value = 19, range = 1:1)
+   └─ (value = 19, range = 14:14)
 """

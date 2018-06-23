@@ -21,9 +21,10 @@ function traverse!(parent::Node{<:NamedTuple}, A::Array{Union{Nothing,Int}}, max
     col = A[range, depth]
     for nt in groupwise(identity, col)
         nt.value === nothing && continue
-        node = Node([], nt)
+        r = (range.start-1+nt.range.start):(range.start-1+nt.range.stop)
+        node = Node([], (value=nt.value, range=r))
         push!(parent.children, node)
-        maxdepth != depth && traverse!(node, A, maxdepth, (range.start-1+nt.range.start):(range.start-1+nt.range.stop), depth+1)
+        maxdepth != depth && traverse!(node, A, maxdepth, r, depth+1)
     end
 end
 
