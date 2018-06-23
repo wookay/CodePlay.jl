@@ -233,6 +233,21 @@ $body
 """
 end
 
+# the example
+function f(x)
+    leaf_function(1)
+    leaf_function(2)
+    leaf_function(3)
+    leaf_function(4)
+    leaf_function(5)
+end
+function g()
+    f(11)
+    f(12)
+end
+h() = g()
+top_function() = h()
+
 function show_annotations(data)
     io = IOBuffer()
     expr = Meta.parse(data)

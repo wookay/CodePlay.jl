@@ -1,5 +1,8 @@
+__precompile__(true)
+
 module Poptart
 
-greet() = print("Hello World!")
+include("groupwise.jl")
+include("codestack.jl")
 
 end # module
