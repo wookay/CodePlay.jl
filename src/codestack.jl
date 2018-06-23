@@ -37,7 +37,9 @@ function groupwise_codestack(code::IRCode)::CodeStack
     length_stmts = length(code.stmts)
     A = Array{Union{Nothing,Int}}(nothing, length_stmts, maxdepth)
     for nt in nts
-        A[nt.idx, 1:nt.depth] = compute_loc_stack(code, nt.line)
+        if nt.line != 0
+            A[nt.idx, 1:nt.depth] = compute_loc_stack(code, nt.line)
+        end
     end
     range = 1:length_stmts
     depth = 1

@@ -82,3 +82,8 @@ end ==  """
 └─ (value = 2, range = 14:15)
    └─ (value = 19, range = 14:14)
 """
+
+(src,) = @code_typed length("abc")
+code = Core.Compiler.inflate_ir(src, Core.svec())::IRCode
+codestack = groupwise_codestack(code)
+@test (212,11) == size(codestack.A)

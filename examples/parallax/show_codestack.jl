@@ -118,8 +118,16 @@ function index(c::IRController, show_banner=true)
             submit("🏂", class="form_submit"),
         )
     end
+    top = div(a[:href => "/"]("Poptart"))
+    banner_help = show_banner ? div(
+        pre(DataLogger.read_stdout(Base.banner)),
+        pre[:style => "background-color: #e3e3e3"]("""Examples:
+            2pi
+            length("abc")
+        """)
+    ) : ""
     source_link = div(a[:href => "https://github.com/wookay/Poptart.jl/blob/master/examples/parallax/show_codestack.jl"]("source code"))
-    body = div(show_banner ? pre(DataLogger.read_stdout(Base.banner)) : "", form1, pre(show_codestack(changeset.changes.data)), source_link)
+    body = div(top, banner_help, form1, pre(show_codestack(changeset.changes.data)), source_link)
     render(HTML, layout(body))
 end
 
