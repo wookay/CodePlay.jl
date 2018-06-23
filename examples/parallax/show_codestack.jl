@@ -141,6 +141,10 @@ routes(:front) do
     post("/show_codestack", IRController, post_result)
 end
 
+# pre-loading
+Router.call(get, "/")
+Router.call(post, "/show_codestack")
+
 if haskey(ENV, "ON_HEROKU")
     import Sockets: IPv4
     Bukdu.start(parse(Int, ENV["PORT"]); host=IPv4(0,0,0,0))
