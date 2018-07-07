@@ -25,14 +25,14 @@ end
 
 import InteractiveUtils: @code_typed
 import Core.Compiler: IRCode
-import Poptart: groupwise_codestack
-import AbstractTrees: print_tree
+import Poptart
+import AbstractTrees: print_tree, printnode
 using Millboard # table
 using DataLogger # read_stdout
 
 (src,) = @code_typed top_function()
-code = Core.Compiler.inflate_ir(src, Core.svec())::IRCode
-codestack = groupwise_codestack(code)
+code = Core.Compiler.inflate_ir(src)::IRCode
+codestack = Poptart.groupwise_codestack(code)
 
 Millboard.display_style[:prepend_newline] = true
 DataLogger.read_stdout() do
@@ -58,32 +58,42 @@ end == """
 | 15 | 2 |    |   |    |
 """
 
+
+function printnode(io::IO, node::Poptart.Node{<:NamedTuple})
+    entry = node.data.value
+    if entry === nothing
+        Base.printstyled(io, (method=nothing, range=node.data.range), color=:blue)
+    else
+        Base.printstyled(io, (method=entry.method, range=node.data.range), color=:blue)
+    end
+end
+
 @test DataLogger.read_stdout() do
     print_tree(codestack.tree)
 end ==  """
-(value = nothing, range = 1:15)
-├─ (value = 1, range = 1:13)
-│  └─ (value = 3, range = 1:13)
-│     ├─ (value = 4, range = 1:6)
-│     │  ├─ (value = 7, range = 1:1)
-│     │  ├─ (value = 8, range = 2:2)
-│     │  ├─ (value = 9, range = 3:3)
-│     │  ├─ (value = 10, range = 4:4)
-│     │  ├─ (value = 11, range = 5:5)
-│     │  └─ (value = 12, range = 6:6)
-│     ├─ (value = 5, range = 7:7)
-│     └─ (value = 6, range = 8:13)
-│        ├─ (value = 13, range = 8:8)
-│        ├─ (value = 14, range = 9:9)
-│        ├─ (value = 15, range = 10:10)
-│        ├─ (value = 16, range = 11:11)
-│        ├─ (value = 17, range = 12:12)
-│        └─ (value = 18, range = 13:13)
-└─ (value = 2, range = 14:15)
-   └─ (value = 19, range = 14:14)
+(method = nothing, range = 1:15)
+├─ (method = :top_function, range = 1:13)
+│  └─ (method = :h, range = 1:13)
+│     ├─ (method = :g, range = 1:6)
+│     │  ├─ (method = :f, range = 1:1)
+│     │  ├─ (method = :f, range = 2:2)
+│     │  ├─ (method = :f, range = 3:3)
+│     │  ├─ (method = :f, range = 4:4)
+│     │  ├─ (method = :f, range = 5:5)
+│     │  └─ (method = :f, range = 6:6)
+│     ├─ (method = :g, range = 7:7)
+│     └─ (method = :g, range = 8:13)
+│        ├─ (method = :f, range = 8:8)
+│        ├─ (method = :f, range = 9:9)
+│        ├─ (method = :f, range = 10:10)
+│        ├─ (method = :f, range = 11:11)
+│        ├─ (method = :f, range = 12:12)
+│        └─ (method = :f, range = 13:13)
+└─ (method = :top_function, range = 14:15)
+   └─ (method = :k, range = 14:14)
 """
 
 (src,) = @code_typed length("abc")
-code = Core.Compiler.inflate_ir(src, Core.svec())::IRCode
-codestack = groupwise_codestack(code)
-@test (212,11) == size(codestack.A)
+code = Core.Compiler.inflate_ir(src)::IRCode
+codestack = Poptart.groupwise_codestack(code)
+@test (217,11) == size(codestack.A)

@@ -15,16 +15,18 @@ struct CodeStack
 end
 
 children(node::Node{<:NamedTuple}) = node.children
-printnode(io::IO, node::Node{<:NamedTuple}) = Base.printstyled(io, node.data, color=:blue)
+# printnode(io::IO, node::Node{<:NamedTuple}) = Base.printstyled(io, node.data, color=:blue)
 
-function traverse!(parent::Node{<:NamedTuple}, A::Array{Union{Nothing,Int}}, maxdepth, range::UnitRange, depth)
+function watering!(parent::Node{<:NamedTuple}, A::Array{Union{Nothing,Int}}, code::IRCode, maxdepth, range::UnitRange, depth)
     col = A[range, depth]
     for nt in groupwise(identity, col)
         nt.value === nothing && continue
         r = (range.start-1+nt.range.start):(range.start-1+nt.range.stop)
-        node = Node([], (value=nt.value, range=r))
+        line = nt.value
+        entry = code.linetable[line]
+        node = Node([], (value=entry, range=r))
         push!(parent.children, node)
-        maxdepth != depth && traverse!(node, A, maxdepth, r, depth+1)
+        maxdepth != depth && watering!(node, A, code, maxdepth, r, depth+1)
     end
 end
 
@@ -44,7 +46,7 @@ function groupwise_codestack(code::IRCode)::CodeStack
     range = 1:length_stmts
     depth = 1
     root = Node{<:NamedTuple}([], (value=nothing, range=range))
-    traverse!(root, A, maxdepth, range, depth)
+    watering!(root, A, code, maxdepth, range, depth)
     CodeStack(A, root)
 end
 
